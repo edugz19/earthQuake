@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+            crossorigin=""
+        />
+        <script
+            src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""
+        ></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map" style="width: 100vW; height: 100vh;"></div>
+
+        <script>
+            window.addEventListener("load", async () => {
+                const apiKey =
+                    "pk.eyJ1IjoiZWR1Z3oxOSIsImEiOiJjbDByNHJiMTEwMDI2M2xwM3oxZTMxNGNjIn0.wLZmjX97i_HNEY4QTlw5BA";
+                const res = await fetch("http://localhost:8000/index.php");
+                const data = await res.json();
+
+                let icon = new L.Icon({
+                    iconUrl: "mark.png",
+                    iconSize: [30, 30],
+                    iconAnchor: [25, 50],
+                });
+
+                let map = L.map("map", {
+                    center: [39, -4.7],
+                    zoom: 6.4,
+                });
+
+                data.forEach((city) => {
+                    L.marker([city.lat, city.long], {icon: icon})
+                        .bindPopup(() => {
+                            return `
+                <h4 style="color: black">
+                    <br/> ${city.description}
+                </h4>
+                <p><a target="_blank" href="${city.link}" style="color: black">Más info</a></p>
+                <p style="color: black">${city.date} a las ${city.time} </p>
+            `;
+                        })
+                        .addTo(map);
+                });
+
+                let tiles = L.tileLayer(
+                    `https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=${apiKey}`,
+                    {
+                        tileSize: 520,
+                        zoomOffset: -1,
+                    }
+                ).addTo(map);
+            });
+        </script>
+    </body>
+</html>
